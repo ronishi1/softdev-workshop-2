@@ -7,17 +7,28 @@
     American movies scraped from Wikipedia Database
     This json file contains all American movies from 1900, including information about genre, cast, and title.
     Link to raw data: https://raw.githubusercontent.com/prust/wikipedia-movie-data/master/movies.json
-    When importing the json file into the mongoDB server, use the command below
-    mongoimport --db DATABASE_NAME --collection COLLECTION_NAME --drop --jsonArray --file DIRECTORY_NAME/movies.json
+    To import the movies data, run movies.py with import_db() uncommented. After running it, comment out the function call.
 
 '''
 import pymongo
+import json
+
 SERVER_ADDR = "68.183.130.243"
 connection = pymongo.MongoClient(SERVER_ADDR)
-db = connection.movies
+db = connection.Shaggy
 collection = db.movielist
 
+def import_db():
+    f = open("movies.json","r",encoding="utf8")
+    data = json.loads(f.read())
+    f.close()
+
+    collection.insert_many(data)
+
+#import_db()
+
 def search_year(year):
+    print (db)
     for movie in collection.find({"year":year}):
         print(movie)
 
@@ -39,4 +50,4 @@ def search_genre_cast(genre,year):
     for movie in collection.find({'$and': [{"genres": genre},{'year': year}]}):
         print(movie)
 
-#search_genre_cast("Action",2001)
+search_genre_cast("Action",2001)
