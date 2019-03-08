@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title> Mongo Website </title>
-  </head>
-  <body>
-    <form action="/handle" method="POST">
-      <input type="text" name="ip">
-      <input type="submit" value="Submit">
-      </form>
-  </body> 
+    <head>
+      <title> Mongo Website </title>
+    </head>
+    <body>
+        {% for msg in get_flashed_messages() %}
+        {{msg}}<br>
+        {% endfor %}
+        <form action="/handle" method="POST">
+            <input type="text" name="ip">
+            <input type="submit" value="Submit">
+        </form>
+    </body>
 </html>

@@ -1,46 +1,61 @@
-from flask import Flask, redirect, url_for, render_template, session, request
-import pymongo
+# Team Garfield - Ray Onishi, Jiayang Chen, Theodore Peters
+# SoftDev2 pd7
+# K08 -- Ay Mon, Go Git It From Yer Flask
+# 2019-03-08
+
+'''
+    American movies scraped from Wikipedia Database
+    This json file contains all American movies from 1900, including information about genre, cast, and title.
+    Link to raw data: https://raw.githubusercontent.com/prust/wikipedia-movie-data/master/movies.json
+'''
+
+
+from flask import Flask, redirect, url_for, render_template, session, request, flash
 import os
 import json
 
+from util import mongo
+
 app = Flask(__name__)
 app.secret_key = os.urandom(32)
+collection = None
 
 @app.route('/')
 def home():
     return render_template('index.html')
 
-@app.route('/handle',methods=["POST"])
+@app.route('/handle',methods=["GET","POST"])
 def handle():
-    SERVER_ADDR = "68.183.130.243"
-    connection = pymongo.MongoClient(SERVER_ADDR)
-    db = connection.Shaggy
-    collection = db.movielist
+    ip = request.form.get('ip').strip()
+    connection = mongo.connect(ip)
+    global collection
+    collection = mongo.import_db(connection)
+    return redirect(url_for('search'))
 
-def search_year(year):
-    print (db)
-    for movie in collection.find({"year":year}):
-        print(movie)
+@app.route('/search')
+def search():
+    return render_template('search.html')
 
-#search_year(1900)
+@app.route('/results')
+def results():
+    result = []
+    if 'year' in request.args and request.args['year'].strip() != '':
+        year = int(request.args['year'])
+        movies = mongo.search_year(collection,year)
+        result = movies
 
-def search_genre(genre):
-    for movie in collection.find({"genres":genre}):
-        print(movie)
+    if 'genre' in request.args and request.args['genre'].strip() != '':
+        genre = request.args['genre']
+        movies = mongo.search_genre(collection,genre)
+        result = movies
 
-#search_genre("Action")
+    if 'cast' in request.args and request.args['cast'].strip() != '':
+        cast = request.args['cast']
+        movies = mongo.search_cast(collection,cast)
+        result = movies
 
-def search_cast(name):
-    for movie in collection.find({"cast":name}):
-        print(movie)
+    return render_template('results.html', movies = result)
 
-#search_cast("Tom Cruise")
-
-def search_genre_cast(genre,year):
-    for movie in collection.find({'$and': [{"genres": genre},{'year': year}]}):
-        print(movie)
-
-#search_genre_cast("Action",2001)
 
 if __name__ == "__main__":
     app.debug = True
