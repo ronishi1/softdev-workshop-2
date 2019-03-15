@@ -9,7 +9,7 @@ var clear = () => {
 clear_but.addEventListener('click',clear);
 
 var draw = (e) => {
-  event.preventDefault();
+  e.preventDefault();
   x = e.offsetX;
   y = e.offsetY;
   var c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
