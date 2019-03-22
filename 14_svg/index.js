@@ -17,4 +17,6 @@ var letters = [
   {name: "E", frequency: .12702}
 ];
 
+// **********************************
 // DOESN'T WORK COME BACK TO IT LATER
+// **********************************
