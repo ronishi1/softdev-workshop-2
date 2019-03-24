@@ -36,14 +36,6 @@ var x_axis = d3.axisBottom()
 var y_axis = d3.axisLeft()
   .scale(y_scale)
 
-chart.append('g')
-  .attr("transform","translate (100,815)")
-  .call(x_axis)
-
-chart.append('g')
-  .attr("transform","translate (100,100)")
-  .call(y_axis)
-
 chart.append("text")
   .attr("x",width / 2)
   .attr("y", 0)
@@ -62,3 +54,11 @@ chart.append("text")
   .attr("y",height-150)
   .attr("dy","2em")
   .text("Temperature (C°)");
+
+chart.append('g')
+  .attr("transform","translate (100,815)")
+  .call(x_axis)
+
+chart.append('g')
+  .attr("transform","translate (100,100)")
+  .call(y_axis)
