@@ -1,64 +1,73 @@
-// https://www.mathsisfun.com/data/scatter-xy-plots.html data
+var margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
 
-var temps = [14.2,16.4,11.9,15.2,18.5,22.1,19.4,25.1,23.4,18.1,22.6,17.2];
-var sales = [215,325,185,332,406,522,412,614,544,421,445,408];
+var xValue = function(d) { return d.Calories;},
+    x_scale = d3.scaleLinear().range([0, width]),
+    x_map = function(d) { return x_scale(xValue(d));},
+    x_axis = d3.axisBottom(x_scale);
 
-var width = 1000;
-var height = 1000;
+var yValue = function(d) { return d["Fat"];},
+    y_scale = d3.scaleLinear().range([height, 0]),
+    y_map = function(d) { return y_scale(yValue(d));},
+    y_axis = d3.axisLeft(y_scale);
 
-var chart = d3.select(".chart").attr("width", width).attr("height", height)
 
-// a tad broken will need to come back later
-// not too sure how scales and stuff work
-// y axis is a bit wrong but ok for now,
-// x axis is very broken need to return later
-var i = 0;
-while (i < temps.length){
-  var c = chart.append("circle")
-  .attr("cx", (temps[i]-8) * (width+200)/d3.max(temps))
-  .attr("cy", d3.max(sales)+175-sales[i])
-  .attr("r", 5)
-  .attr("fill","red");
-  i += 1;
-}
+var c_value = function(d) { return d.Manufacturer;},
+    color = d3.scaleOrdinal(d3.schemeCategory10);
 
-var x_scale = d3.scaleLinear()
-  .domain([d3.min(temps)-1,d3.max(temps)+1])
-  .range([d3.min(temps)-1, width]);
 
-var y_scale = d3.scaleLinear()
-  .domain([0,d3.max(sales)+1])
-  .range([(d3.max(sales))+100,0]);
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom + 100)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-var x_axis = d3.axisBottom()
-  .scale(x_scale)
 
-var y_axis = d3.axisLeft()
-  .scale(y_scale)
+d3.csv("cereal.csv").then(function(data) {
+  data.forEach(function(d) {
+    d.Calories = +d.Calories;
+    d["Fat"] = +d["Fat"];
+  });
 
-chart.append("text")
-  .attr("x",width / 2)
-  .attr("y", 0)
-  .attr("dy","2em")
-  .text("Ice Cream Sales Over Temperature");
+  x_scale.domain([d3.min(data, xValue)-1, d3.max(data, xValue)+1]);
+  y_scale.domain([d3.min(data, yValue)-1, d3.max(data, yValue)+1]);
 
-chart.append("text")
-  .attr("transform","rotate(-90)")
-  .attr("x",-500)
-  .attr("y",10)
-  .attr("dy","1em")
-  .text("Sales ($)");
+  // x
+  svg.append("g")
+      .attr("class", "x axis")
+      .style("fill","black")
+      .attr("transform", "translate(30," + height + ")")
+      .call(x_axis)
+  svg.append("text")
+      .attr("class", "x label")
+      .attr("x", width / 2)
+      .attr("y", height + 50)
+      .attr("font-size","16px")
+      .style("text-anchor", "middle")
+      .text("Calories");
 
-chart.append("text")
-  .attr("x",width/2)
-  .attr("y",height-150)
-  .attr("dy","2em")
-  .text("Temperature (C°)");
+  // y
+  svg.append("g")
+      .attr("class", "y axis")
+      .style("fill","black")
+      .attr("transform", "translate(30,0)")
+      .call(y_axis)
+  svg.append("text")
+      .attr("class", "x label")
+      .attr("transform","rotate(-90)")
+      .attr("x", -height/2)
+      .attr("y", -15)
+      .attr("font-size","16px")
+      .style("text-anchor", "middle")
+      .text("Fat");
 
-chart.append('g')
-  .attr("transform","translate (100,815)")
-  .call(x_axis)
-
-chart.append('g')
-  .attr("transform","translate (100,100)")
-  .call(y_axis)
+  svg.selectAll(".dot")
+      .data(data)
+    .enter().append("circle")
+      .attr("class", "dot")
+      .attr("r", 3.5)
+      .attr("cx", x_map)
+      .attr("cy", y_map)
+      .style("fill", function(d) { return color(cValue(d));})
+});
